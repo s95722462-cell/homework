@@ -1,3 +1,931 @@
-<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>숙제</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;font:18px/1.6 -apple-system,"Malgun Gothic",sans-serif;background:#111;color:#eee}b{font-size:40px}</style>
-<div style="text-align:center"><b>✏️ 숙제</b><p>준비 중입니다 — 곧 열려요</p></div></html>
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="description" content="하루 한 질문, 한 줄이면 끝나는 숙제. 답은 책 원고 재료로 쌓여요.">
+<title>숙제</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="숙제">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f2f2f7; --surface: #ffffff; --surface-2: #f7f7fa; --fill: #e9e9ef; --fill-2: #dedee5;
+    --ink: #1c1c1e; --ink-2: #3a3a3c; --dim: #6c6c70; --line: #e3e3e8;
+    --accent: #c2410c; --accent-press: #a3370a; --accent-soft: #fff1e8; --accent-ink: #b23c0b; --on-accent: #ffffff;
+    --ok: #1f7a35; --ok-soft: #e8f7ec; --warn: #b42318; --warn-soft: #fff0ee;
+    --r: 14px; --r-lg: 20px; --r-pill: 999px;
+    --sh: 0 1px 2px rgb(0 0 0 / .05), 0 6px 18px -8px rgb(0 0 0 / .12);
+    --gap: 16px; --t: .18s; --ease: cubic-bezier(.2, .8, .2, 1);
+  }
+  :root[data-theme=dark] {
+    color-scheme: dark;
+    --bg: #000000; --surface: #1c1c1e; --surface-2: #242426; --fill: #2c2c2e; --fill-2: #3a3a3c;
+    --ink: #f2f2f7; --ink-2: #d1d1d6; --dim: #a1a1a8; --line: #38383a;
+    --accent: #c2410c; --accent-press: #d9531c; --accent-soft: #3a1d0e; --accent-ink: #ff9a62;
+    --ok: #4ade80; --ok-soft: #0f2d18; --warn: #ff7b70; --warn-soft: #3a1212; --sh: none;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme=light]) {
+      color-scheme: dark;
+      --bg: #000000; --surface: #1c1c1e; --surface-2: #242426; --fill: #2c2c2e; --fill-2: #3a3a3c;
+      --ink: #f2f2f7; --ink-2: #d1d1d6; --dim: #a1a1a8; --line: #38383a;
+      --accent: #c2410c; --accent-press: #d9531c; --accent-soft: #3a1d0e; --accent-ink: #ff9a62;
+      --ok: #4ade80; --ok-soft: #0f2d18; --warn: #ff7b70; --warn-soft: #3a1212; --sh: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", "Noto Sans KR", sans-serif;
+    word-break: keep-all; overflow-wrap: anywhere; -webkit-font-smoothing: antialiased; min-height: 100vh; overflow-x: hidden;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+  body.lock { overflow: hidden; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  .top { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 8px; padding: 8px var(--gap); background: color-mix(in srgb, var(--bg) 88%, transparent);
+    -webkit-backdrop-filter: saturate(1.6) blur(14px); backdrop-filter: saturate(1.6) blur(14px); }
+  .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 19px; min-height: 44px; }
+  .brand img { width: 30px; height: 30px; border-radius: 8px; }
+  .sp { flex: 1; }
+  .pillbtn { min-height: 44px; min-width: 44px; padding: 0 16px; border: 0; border-radius: var(--r-pill); background: var(--fill); font-size: 15px; font-weight: 600; color: var(--ink-2); }
+  .pillbtn:active { background: var(--fill-2); }
+
+  main { max-width: 600px; margin: 0 auto; padding: 4px var(--gap) 48px; }
+  h1 { font-size: 28px; line-height: 1.25; margin: 14px 4px 14px; letter-spacing: -.01em; }
+  h2 { font-size: 17px; margin: 0 0 10px; }
+  .card { background: var(--surface); border-radius: var(--r-lg); padding: 18px; margin: 0 0 14px; box-shadow: var(--sh); }
+  .muted { color: var(--dim); }
+  .small { font-size: 14px; color: var(--dim); margin: 6px 0 0; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .between { justify-content: space-between; }
+  .streak { font-weight: 800; color: var(--accent-ink); white-space: nowrap; }
+  .pill { display: inline-block; margin: 12px 0 8px; padding: 4px 12px; border-radius: var(--r-pill); background: var(--accent-soft); color: var(--accent-ink); font-size: 14px; font-weight: 700; }
+  .q { font-size: 19px; font-weight: 700; line-height: 1.45; margin: 0 0 10px; white-space: pre-line; }
+  .status { margin: 0 0 14px; color: var(--ink-2); font-weight: 600; }
+  .status.done { color: var(--ok); }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px; padding: 0 18px; border: 0; border-radius: var(--r); background: var(--accent); color: var(--on-accent);
+    font-weight: 700; font-size: 17px; transition: transform var(--t) var(--ease), background var(--t); }
+  .btn:active { transform: scale(.97); background: var(--accent-press); }
+  .btn:disabled { opacity: .45; }
+  .btn.big { min-height: 58px; font-size: 19px; border-radius: var(--r-lg); width: 100%; }
+  .btn.ghost { background: var(--fill); color: var(--ink); }
+  .btn.ghost:active { background: var(--fill-2); }
+  .btn.sm { min-height: 46px; font-size: 16px; padding: 0 14px; }
+  .btnrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .btnrow .btn { flex: 1 1 auto; }
+  .link { border: 0; background: none; padding: 10px 2px; min-height: 44px; color: var(--dim); text-decoration: underline; font-size: 15px; }
+
+  input[type=text], input[type=time], input:not([type]), textarea, select { width: 100%; min-height: 48px; padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface-2); font-size: 17px; }
+  textarea { resize: vertical; line-height: 1.55; font-size: 18px; min-height: 150px; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  label.f { display: block; font-size: 14px; color: var(--dim); font-weight: 600; margin: 14px 0 6px 2px; }
+  .set { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; border-bottom: 1px solid var(--line); }
+  .set:last-child { border-bottom: 0; }
+  .set > span { flex: 1; min-width: 0; }
+  .set select, .set input[type=time] { width: auto; min-width: 110px; }
+  .switch { appearance: none; -webkit-appearance: none; width: 51px; height: 31px; border-radius: 31px; background: var(--fill-2); position: relative; flex: none; margin: 0; cursor: pointer; transition: background var(--t); }
+  .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgb(0 0 0 / .2); transition: transform var(--t) var(--ease); }
+  .switch:checked { background: #34c759; }
+  .switch:checked::after { transform: translateX(20px); }
+
+  .dots { display: grid; grid-template-columns: repeat(14, 1fr); gap: 4px; }
+  .dot { aspect-ratio: 1; border-radius: 6px; background: var(--fill); display: grid; place-items: center; font-size: 11px; color: var(--dim); }
+  .dot.on { background: var(--accent); color: #fff; }
+  .dot.rest { background: var(--accent-soft); color: var(--accent-ink); }
+  .dot.today { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .ent { display: block; width: 100%; text-align: left; border: 0; background: none; padding: 12px 2px; border-bottom: 1px solid var(--line); min-height: 44px; }
+  .ent:last-child { border-bottom: 0; }
+  .ent b { font-size: 14px; color: var(--accent-ink); }
+  .ent .tx { display: block; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ent .meta { font-size: 13px; color: var(--dim); }
+  .note { background: var(--accent-soft); color: var(--ink); border-radius: var(--r); padding: 12px 14px; margin: 10px 0 0; font-size: 15px; }
+  details.card summary { cursor: pointer; font-weight: 700; min-height: 32px; }
+  details.card ol, details.card ul { padding-left: 20px; margin: 8px 0; }
+  details.card li { margin: 4px 0; }
+
+  /* 숙제 창 (화면 가득) */
+  .ov { position: fixed; inset: 0; z-index: 50; background: var(--bg); overflow-y: auto; -webkit-overflow-scrolling: touch;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); animation: up .28s var(--ease); }
+  @keyframes up { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .ovin { max-width: 640px; margin: 0 auto; padding: 12px var(--gap) 40px; }
+  .xbtn { width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--fill); font-size: 18px; color: var(--ink-2); flex: none; }
+  .kick { font-size: 26px; font-weight: 800; margin: 18px 0 2px; letter-spacing: -.01em; }
+  .oq { font-size: 22px; line-height: 1.45; margin: 4px 0 14px; white-space: pre-line; }
+  .hint { color: var(--dim); font-size: 15px; margin: 8px 2px 0; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .msg { min-height: 1.5em; margin: 8px 2px; font-weight: 600; color: var(--warn); }
+  .msg.info { color: var(--ink-2); }
+  .shake { animation: shake .35s; }
+  @keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+  .done { text-align: center; padding: 60px 0 30px; }
+  .done .big { font-size: 34px; font-weight: 800; }
+  .restbox { background: var(--surface); border-radius: var(--r); padding: 4px 14px 14px; margin-top: 4px; }
+
+  .sheet { position: fixed; inset: 0; z-index: 60; background: rgb(0 0 0 / .35); display: flex; align-items: flex-end; justify-content: center; }
+  .sheet > .pane { background: var(--bg); width: 100%; max-width: 600px; max-height: 92vh; overflow-y: auto; border-radius: 22px 22px 0 0; padding: 8px var(--gap) calc(24px + env(safe-area-inset-bottom)); animation: up .25s var(--ease); }
+  @media (min-width: 700px) { .sheet { align-items: center; } .sheet > .pane { border-radius: 22px; } }
+  .pane .head { display: flex; align-items: center; gap: 8px; position: sticky; top: -8px; background: var(--bg); padding: 8px 0; z-index: 1; }
+  .pane .head h2 { flex: 1; margin: 0; font-size: 19px; }
+  .pre { white-space: pre-wrap; background: var(--surface); border-radius: var(--r); padding: 14px; font-size: 16px; margin: 0; }
+
+  .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 80; background: #1c1c1e; color: #fff; padding: 12px 18px; border-radius: var(--r-pill);
+    font-weight: 600; max-width: calc(100vw - 32px); text-align: center; box-shadow: 0 8px 24px rgb(0 0 0 / .25); }
+  @media (pointer: coarse) { #oKbd { display: none; } }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><img src="icon-192.png" alt=""><span>숙제</span></div>
+  <span class="sp"></span>
+  <button class="pillbtn" id="bSettings" type="button">설정</button>
+</header>
+
+<main id="home">
+  <h1>오늘의 숙제</h1>
+  <section class="card" aria-labelledby="tQ">
+    <div class="row between"><span id="tDate" class="muted"></span><span id="tStreak" class="streak"></span></div>
+    <div id="tPill" class="pill"></div>
+    <p id="tQ" class="q"></p>
+    <p id="tStatus" class="status"></p>
+    <button class="btn big" id="bNow" type="button">지금 숙제하기 ✏️</button>
+  </section>
+
+  <section class="card" id="cFolder" hidden>
+    <h2>📁 책 폴더</h2>
+    <p id="fState" class="muted" style="margin:0"></p>
+    <div class="btnrow">
+      <button class="btn sm" id="bFolder" type="button">책 폴더 고르기</button>
+      <button class="btn ghost sm" id="bImport" type="button">휴대폰 숙제 가져오기</button>
+    </div>
+    <p id="fPending" class="note" hidden></p>
+  </section>
+
+  <section class="card" id="cDevice" hidden>
+    <h2>📱 이 기기에 저장된 숙제</h2>
+    <p id="dState" class="muted" style="margin:0"></p>
+    <div class="btnrow">
+      <button class="btn sm" id="bExport" type="button">내보내기 (공유)</button>
+      <button class="btn ghost sm" id="bImport2" type="button">가져오기</button>
+    </div>
+    <p class="small">PC의 숙제 화면에서 [휴대폰 숙제 가져오기]로 이 파일을 열면 책 폴더 <b>_질문과답</b>에 새 파일로 들어가요.</p>
+  </section>
+
+  <section class="card">
+    <div class="row between"><h2 style="margin:0">연속 기록</h2><span id="sBig" class="streak"></span></div>
+    <div id="dots" class="dots" style="margin-top:12px" aria-label="최근 14일"></div>
+    <p id="progress" class="small"></p>
+  </section>
+
+  <section class="card">
+    <h2>지난 숙제</h2>
+    <div id="list"></div>
+  </section>
+
+  <details class="card" id="help">
+    <summary>탭을 닫아 두면 알림이 오나요?</summary>
+    <p>솔직히 말하면 <b>이 화면(탭)이 열려 있을 때만</b> <span class="tm">21:00</span>에 알려 드릴 수 있어요. 탭이나 앱을 닫으면 웹 페이지는 시간을 알 수 없어요. 대신 휴대폰·PC가 대신 불러 주게 해 두세요.</p>
+    <p><b>아이폰</b> — 단축어 앱으로 매일 열기</p>
+    <ol>
+      <li>단축어 앱 → 아래 <b>자동화</b> → <b>+</b> → <b>특정 시간</b></li>
+      <li>시간 <span class="tm">21:00</span>, <b>매일</b>, <b>즉시 실행</b> 고르고 다음</li>
+      <li>동작 <b>URL 열기</b> → 이 주소 붙여 넣기 → 완료</li>
+    </ol>
+    <p><b>안드로이드</b> — 이 화면을 홈 화면에 추가(메뉴 ⋮ → 홈 화면에 추가)하고, 시계 앱에 <span class="tm">21:00</span> 알람 "숙제"를 만들어 두세요. 알람이 울리면 숙제 아이콘을 누르면 돼요.</p>
+    <p><b>PC (Edge)</b> — 주소창 오른쪽 <b>앱 설치</b>로 숙제를 설치한 뒤 <b>edge://apps</b> → 숙제 → <b>디바이스 로그인 시 자동 시작</b>을 켜 두면 PC를 켤 때마다 숙제가 함께 열려요.</p>
+    <p class="small">놓친 날은 다음에 열 때 "어제 숙제"로 한 번 물어봐요.</p>
+  </details>
+  <p class="small" style="text-align:center" id="ver">숙제 v1.0</p>
+</main>
+
+<!-- 숙제 창 -->
+<div id="ov" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="oQ">
+  <div class="ovin">
+    <div class="row between"><span id="oDate" class="muted"></span><span class="row" style="gap:12px"><span id="oStreak" class="streak"></span><button id="oX" class="xbtn" type="button" aria-label="닫기">✕</button></span></div>
+    <div id="oBody">
+      <p id="oKick" class="kick"></p>
+      <div id="oPill" class="pill"></div>
+      <h2 id="oQ" class="oq"></h2>
+      <textarea id="oText" rows="5" placeholder="여기에 한 줄…" aria-label="답"></textarea>
+      <p class="hint"><span>한 줄이면 끝!</span><span id="oKbd">Ctrl+Enter 저장</span></p>
+      <p id="oMsg" class="msg" role="status" aria-live="polite"></p>
+      <button class="btn big" id="oSave" type="button">숙제 끝내기</button>
+      <div class="btnrow">
+        <button class="btn ghost sm" id="oSnooze" type="button"></button>
+        <button class="btn ghost sm" id="oDiary" type="button">자유 일기로 쓰기</button>
+        <button class="btn ghost sm" id="oOther" type="button">다른 질문</button>
+      </div>
+      <div id="oRest" hidden>
+        <button class="link" id="oRestOpen" type="button">오늘은 쉼…</button>
+        <div id="oRestBox" class="restbox" hidden>
+          <label class="f" for="oRestText">오늘은 쉼 — 이유 한 줄도 숙제예요</label>
+          <input id="oRestText" maxlength="300" placeholder="예: 감기 몸살로 일찍 잠">
+          <div class="btnrow"><button class="btn ghost sm" id="oRestSave" type="button">쉼으로 저장</button></div>
+        </div>
+      </div>
+    </div>
+    <div id="oDone" class="done" hidden role="status"><div class="big" id="oDoneBig"></div><p id="oDoneSmall" class="muted"></p></div>
+  </div>
+</div>
+
+<!-- 설정 -->
+<div id="setSheet" class="sheet" hidden>
+  <div class="pane" role="dialog" aria-modal="true" aria-labelledby="setH">
+    <div class="head"><h2 id="setH">설정</h2><button class="xbtn" type="button" data-close aria-label="닫기">✕</button></div>
+    <div class="card">
+      <label class="set"><span>숙제 검사 시각</span><input type="time" id="cTime" step="300"></label>
+      <label class="set"><span>미루기 간격</span><select id="cSnMin"><option value="5">5분</option><option value="10">10분</option><option value="15">15분</option><option value="20">20분</option><option value="30">30분</option></select></label>
+      <label class="set"><span>미루기 횟수 (하루)</span><select id="cSnMax"><option value="0">0번</option><option value="1">1번</option><option value="2">2번</option><option value="3">3번</option><option value="4">4번</option><option value="5">5번</option></select></label>
+      <label class="set"><span>질문 묶음</span><select id="cBundle"></select></label>
+    </div>
+    <div class="card">
+      <label class="set"><span>알림 보내기 <span class="small" id="nState" style="display:block;margin:0"></span></span><input type="checkbox" class="switch" id="cNotify"></label>
+      <label class="set"><span>질문 읽어 주기</span><input type="checkbox" class="switch" id="cSpeak"></label>
+      <label class="set"><span>화면</span><select id="cTheme"><option value="auto">기기 설정 따라</option><option value="light">밝게</option><option value="dark">어둡게</option></select></label>
+    </div>
+    <div class="card" id="setFolder" hidden>
+      <h2>책 폴더</h2>
+      <p id="sfState" class="muted" style="margin:0"></p>
+      <div class="btnrow"><button class="btn ghost sm" id="sfPick" type="button">다른 폴더 고르기</button><button class="btn ghost sm" id="sfForget" type="button">연결 끊기</button></div>
+    </div>
+    <div class="card">
+      <h2>기록 옮기기</h2>
+      <div class="btnrow"><button class="btn ghost sm" id="sExport" type="button">내보내기 (zip)</button><button class="btn ghost sm" id="sImport" type="button">가져오기</button></div>
+      <p class="small">내보내기 파일에는 지금까지 쓴 숙제가 .md 파일로 들어 있어요.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 처음 -->
+<div id="welSheet" class="sheet" hidden>
+  <div class="pane" role="dialog" aria-modal="true" aria-labelledby="welH">
+    <div class="head"><h2 id="welH">숙제를 시작해요 ✏️</h2></div>
+    <div class="card">
+      <p style="margin-top:0">매일 정해진 시각에 <b>질문 하나</b>가 숙제로 나와요. 한 줄만 써도 숙제 끝!</p>
+      <p>미루기는 하루 3번까지. 그 뒤로는 한 줄을 쓸 때까지 계속 물어봐요. 정말 힘든 날은 이유 한 줄로 "오늘은 쉼"도 돼요.</p>
+      <p class="muted" style="margin-bottom:0" id="welBundle"></p>
+    </div>
+    <div class="card">
+      <label class="set"><span>숙제 검사 시각</span><input type="time" id="wTime" step="300" value="21:00"></label>
+      <div class="set"><span>알림 <span class="small" id="wNState" style="display:block;margin:0"></span></span><button class="btn ghost sm" id="wNotify" type="button">알림 허용</button></div>
+      <div class="set" id="wFolderRow" hidden><span>책 폴더 <span class="small" id="wFState" style="display:block;margin:0">"어른 매뉴얼" 폴더를 골라 주세요</span></span><button class="btn ghost sm" id="wFolder" type="button">고르기</button></div>
+    </div>
+    <button class="btn big" id="wGo" type="button">✓ 시작하기</button>
+  </div>
+</div>
+
+<!-- 지난 숙제 보기 -->
+<div id="viewSheet" class="sheet" hidden>
+  <div class="pane" role="dialog" aria-modal="true" aria-labelledby="viewH">
+    <div class="head"><h2 id="viewH"></h2><button class="xbtn" type="button" data-close aria-label="닫기">✕</button></div>
+    <pre class="pre" id="viewBody"></pre>
+    <p class="small" id="viewMeta"></p>
+  </div>
+</div>
+
+<div id="toast" class="toast" hidden role="status" aria-live="polite"></div>
+<input type="file" id="fImport" accept=".zip,.md,application/zip,text/markdown" multiple hidden>
+
+<script>
+(() => {
+"use strict";
+const VERSION = "1.0";
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2, "0"), pad3 = n => String(n).padStart(3, "0");
+const now = () => (typeof window.__hwNow === "function" ? window.__hwNow() : Date.now());   // 시험 때 시계를 바꿀 수 있게
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parseKey = k => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d); };
+const addDays = (k, n) => { const d = parseKey(k); d.setDate(d.getDate() + n); return ymd(d); };
+const today = () => ymd(new Date(now()));
+const WD = "일월화수목금토";
+const fmtDate = k => { const d = parseKey(k); return `${d.getMonth() + 1}월 ${d.getDate()}일 (${WD[d.getDay()]})`; };
+const hm = ms => { const d = new Date(ms); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const stamp = ms => `${ymd(new Date(ms))} ${hm(ms)}`;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const firstLine = s => String(s).split(/\r?\n/)[0];
+
+const BUNDLES = [{ id: "adult-manual", name: "어른 매뉴얼 숙제", file: "bundles/adult-manual.json" }];   // 나중에 여행·유튜브·업무 숙제 추가
+const DEF = { time: "21:00", snoozeMin: 10, snoozeMax: 3, bundle: "adult-manual", notify: true, speak: true, theme: "auto" };
+const FSA = typeof window.showDirectoryPicker === "function";
+const ZIP_URL = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
+const ZIP_SRI = "sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg==";
+
+let cfg = { ...DEF }, S = null, B = null, qById = {}, entries = [];
+let dir = null, qa = null, dirOk = false;
+let folder = { answered: new Set(), dates: new Set(), maxD: 0, names: new Set() };
+const fcache = new Map();
+let O = null;          // 열려 있는 숙제 창 {mode: normal|persist|catchup|manual, date, diary, qid}
+
+// ---------- 저장소 (IndexedDB, 안 되면 메모리) ----------
+const DB = (() => {
+  let p = null, mem = null;
+  const open = () => p || (p = new Promise((res, rej) => {
+    const r = indexedDB.open("homework", 1);
+    r.onupgradeneeded = () => { const d = r.result; d.createObjectStore("kv"); d.createObjectStore("entries", { keyPath: "id", autoIncrement: true }); };
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); r.onblocked = () => rej(new Error("blocked"));
+  }).catch(e => { mem = { kv: new Map(), e: new Map(), n: 0 }; console.warn("IndexedDB 없음 → 메모리", e); return null; }));
+  const tx = async (store, mode, fn) => {
+    const d = await open();
+    if (!d) { const r = fn(null); return r && "result" in r ? r.result : undefined; }
+    return new Promise((res, rej) => {
+      const t = d.transaction(store, mode), r = fn(t.objectStore(store));
+      t.oncomplete = () => res(r && "result" in r ? r.result : undefined); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error);
+    });
+  };
+  return {
+    get: k => tx("kv", "readonly", s => s ? s.get(k) : { result: mem.kv.get(k) }),
+    put: (k, v) => tx("kv", "readwrite", s => s ? s.put(v, k) : (mem.kv.set(k, v), null)),
+    del: k => tx("kv", "readwrite", s => s ? s.delete(k) : (mem.kv.delete(k), null)),
+    add: e => tx("entries", "readwrite", s => s ? s.add(e) : (e.id = ++mem.n, mem.e.set(e.id, e), { result: e.id })),
+    putE: e => tx("entries", "readwrite", s => s ? s.put(e) : (mem.e.set(e.id, e), null)),
+    all: () => tx("entries", "readonly", s => s ? s.getAll() : { result: [...mem.e.values()] }),
+    get memOnly() { return !!mem; }
+  };
+})();
+const saveState = () => DB.put("state", S).catch(e => console.warn("state", e));
+const saveCfg = () => DB.put("cfg", cfg).catch(e => console.warn("cfg", e));
+
+// ---------- 날짜·상태 ----------
+const newState = () => ({ v: 1, setup: false, firstDay: today(), b: {}, day: {}, catchupOffered: [], draft: null, dnum: 0, done: {} });
+function bst() { return S.b[cfg.bundle] || (S.b[cfg.bundle] = { assigned: {}, answered: {}, skipped: {}, rot: 0 }); }
+function dayState() {
+  const t = today();
+  if (S.day.date !== t) { S.day = { date: t, snoozes: 0, nextAt: 0, spoken: false, shows: 0 }; saveState(); }
+  return S.day;
+}
+function dueMs(k) { const d = parseKey(k), [h, m] = cfg.time.split(":").map(Number); d.setHours(h || 0, m || 0, 0, 0); return d.getTime(); }
+function doneDates() { const s = new Set(Object.keys(S.done)); folder.dates.forEach(x => s.add(x)); return s; }
+const isDone = k => !!S.done[k] || folder.dates.has(k);
+function streakFrom(k) { const s = doneDates(); let n = 0; while (s.has(k)) { n++; k = addDays(k, -1); } return n; }
+function streak() { const t = today(); return streakFrom(doneDates().has(t) ? t : addDays(t, -1)); }
+const streakText = () => { const n = streak(); return n > 0 ? `🔥 ${n}일째` : "🔥 오늘이 첫날"; };
+const chLabel = c => (B.chapters && B.chapters[c]) || c;
+
+// ---------- 질문 고르기: Q001 먼저, 장을 돌아가며, 답한 것은 건너뜀 ----------
+function answeredSet() { const s = new Set(Object.keys(bst().answered)); folder.answered.forEach(x => s.add(x)); return s; }
+function pick(exclude) {
+  const b = bst(), ans = answeredSet(), order = B.order || [...new Set(B.questions.map(q => q.ch))], n = order.length;
+  for (const pass of [0, 1]) for (let i = 0; i < n; i++) {
+    const ch = order[(b.rot + i) % n];
+    const c = B.questions.filter(q => q.ch === ch && !ans.has(q.id) && !exclude.has(q.id) && (pass || !b.skipped[q.id]));
+    if (c.length) {
+      if (pass) c.sort((x, y) => (b.skipped[x.id] || 0) - (b.skipped[y.id] || 0));
+      b.rot = (b.rot + i + 1) % n; return c[0].id;
+    }
+  }
+  const rest = B.questions.filter(q => !exclude.has(q.id));           // 다 답했으면 아무거나 다시
+  return (rest[Math.floor(Math.random() * rest.length)] || B.questions[0]).id;
+}
+function openAssigned(except) {            // 다른 날에 나가 있는 (아직 답 안 한) 질문
+  const b = bst(), ans = answeredSet(), s = new Set();
+  for (const [k, id] of Object.entries(b.assigned)) if (k !== except && !ans.has(id) && k >= addDays(today(), -1)) s.add(id);
+  return s;
+}
+function questionFor(k) {
+  const b = bst(); let id = b.assigned[k];
+  if (!id || !qById[id] || (answeredSet().has(id) && !isDone(k))) { id = pick(openAssigned(k)); b.assigned[k] = id; saveState(); }
+  else if (answeredSet().has(id) && k === today() && O && O.mode === "manual") { id = pick(new Set([...openAssigned(k), id])); b.assigned[k] = id; saveState(); }
+  return id;
+}
+function otherQuestion(k) {
+  const b = bst(), cur = b.assigned[k];
+  if (cur) b.skipped[cur] = (b.skipped[cur] || 0) + 1;
+  const ex = openAssigned(k); if (cur) ex.add(cur);
+  b.assigned[k] = pick(ex); saveState(); return b.assigned[k];
+}
+
+// ---------- 책 폴더 (File System Access) ----------
+const NAME_RE = { q: /^(\d{4}-\d{2}-\d{2})_(Q\d{3})_(.+?)(?:_(\d+))?\.md$/, d: /^(\d{4}-\d{2}-\d{2})_D(\d{3})_.*\.md$/, r: /^(\d{4}-\d{2}-\d{2})_쉼(?:_\d+)?\.md$/ };
+function parseName(n) {
+  let m;
+  if ((m = n.match(NAME_RE.q))) return { date: m[1], kind: "answer", qid: m[2] };
+  if ((m = n.match(NAME_RE.d))) return { date: m[1], kind: "diary", dnum: +m[2] };
+  if ((m = n.match(NAME_RE.r))) return { date: m[1], kind: "rest" };
+  return null;
+}
+function answerText(content) {
+  const i = content.indexOf("**답:**");
+  return i < 0 ? "" : content.slice(i + 7).replace(/<!--[\s\S]*?-->/g, "").trim();
+}
+function bodyText(content, kind) {
+  if (kind === "answer") return answerText(content);
+  if (kind === "rest") { const i = content.indexOf("**쉰 이유:**"); return i < 0 ? "" : firstLine(content.slice(i + 10).trim()); }
+  return content.replace(/^#.*$/m, "").replace(/<!--[\s\S]*?-->/g, "").trim();
+}
+async function perm(ask) {
+  if (!dir) return false;
+  try {
+    let p = await dir.queryPermission({ mode: "readwrite" });
+    if (p !== "granted" && ask) p = await dir.requestPermission({ mode: "readwrite" });
+    return p === "granted";
+  } catch (e) { console.warn("perm", e); return false; }
+}
+async function openQa() {
+  qa = dir.name === B.sub ? dir : await dir.getDirectoryHandle(B.sub || "_질문과답", { create: true });
+  await scanFolder(); await flushPending();
+}
+let scanAt = 0;
+async function scanFolder() {
+  if (!qa) return;
+  const f = { answered: new Set(), dates: new Set(), maxD: 0, names: new Set() };
+  try {
+    for await (const h of qa.values()) {
+      if (h.kind !== "file") continue;
+      f.names.add(h.name);
+      const info = parseName(h.name); if (!info) continue;
+      if (info.kind === "diary") { f.dates.add(info.date); f.maxD = Math.max(f.maxD, info.dnum); continue; }
+      if (info.kind === "rest") { f.dates.add(info.date); continue; }
+      const file = await h.getFile(), c = fcache.get(h.name);
+      let ans;
+      if (c && c.lm === file.lastModified && c.size === file.size) ans = c.ans;
+      else { ans = !!answerText(await file.text()); fcache.set(h.name, { lm: file.lastModified, size: file.size, ans }); }
+      if (ans) { f.answered.add(info.qid); f.dates.add(info.date); }
+    }
+    folder = f; scanAt = now();
+  } catch (e) { console.warn("scan", e); dirOk = false; }
+}
+async function uniqueWrite(d, base, content) {
+  for (let k = 1; k < 500; k++) {
+    const name = k === 1 ? base + ".md" : `${base}_${k}.md`;
+    try { await d.getFileHandle(name); continue; }                 // 있으면 다음 이름 (덮어쓰지 않음)
+    catch (e) { if (e.name !== "NotFoundError") throw e; }
+    const fh = await d.getFileHandle(name, { create: true }), w = await fh.createWritable();
+    await w.write(content); await w.close();
+    folder.names.add(name); return name;
+  }
+  throw new Error("파일 이름을 못 정했어요");
+}
+async function flushPending() {
+  if (!qa || !dirOk) return 0;
+  let n = 0;
+  for (const e of entries) if (!e.fname && e.bundle === cfg.bundle) {
+    try { e.fname = await uniqueWrite(qa, e.base, e.content); await DB.putE(e); n++; } catch (er) { console.warn("flush", er); break; }
+  }
+  if (n) { await scanFolder(); toast(`폴더에 숙제 ${n}개를 저장했어요 📁`); }
+  return n;
+}
+async function pickFolder() {
+  let h;
+  try { h = await window.showDirectoryPicker({ id: "homework-book", mode: "readwrite", startIn: "desktop" }); }
+  catch (e) { if (e.name !== "AbortError") toast("폴더를 열지 못했어요: " + e.message); return false; }
+  const sub = B.sub || "_질문과답";
+  if (h.name !== sub && h.name !== B.folder) {
+    let has = false;
+    try { await h.getDirectoryHandle(sub); has = true; } catch (e) { /* 없음 */ }
+    if (!has && !confirm(`"${h.name}" 폴더 안에 ${sub} 폴더를 새로 만들어 숙제를 저장할까요?\n(책 폴더는 보통 "${B.folder}" 이에요)`)) return false;
+  }
+  dir = h; dirOk = true;
+  try { await DB.put("dir:" + cfg.bundle, h); } catch (e) { console.warn("handle save", e); }
+  await openQa(); render(); return true;
+}
+async function restoreFolder() {
+  dir = null; qa = null; dirOk = false; folder = { answered: new Set(), dates: new Set(), maxD: 0, names: new Set() };
+  if (!FSA) return;
+  try { dir = await DB.get("dir:" + cfg.bundle); } catch (e) { dir = null; }
+  if (!dir) return;
+  dirOk = await perm(false);
+  if (dirOk) await openQa();
+}
+async function reconnect() { if (await perm(true)) { dirOk = true; await openQa(); render(); return true; } return false; }
+
+// ---------- 저장 ----------
+function nextDnum() { let m = S.dnum || 0; m = Math.max(m, folder.maxD); for (const e of entries) if (e.dnum) m = Math.max(m, e.dnum); return m + 1; }
+async function saveEntry({ date, kind, text, qid, catchup }) {
+  const q = qid ? qById[qid] : null, t = now(), late = catchup ? " · 다음 날 씀" : "", CR = "\r\n";
+  const tail = `<!-- 숙제 앱 · ${B.name} · 쓴 시각 ${stamp(t)} -->`;
+  const body = String(text).replace(/\r\n/g, "\n").replace(/\n/g, CR);
+  let base, lines, dnum = 0;
+  if (kind === "answer") {
+    base = `${date}_${q.id}_${q.topic}`;
+    lines = [`# ${q.id} · ${date} · (${chLabel(q.ch)})${late}`, "", `**질문:** ${q.q.replace(/\n/g, CR)}`, "", text.includes("\n") ? `**답:**${CR}${CR}${body}` : `**답:** ${body}`, "", tail, ""];
+  } else if (kind === "diary") {
+    dnum = nextDnum(); S.dnum = dnum;
+    base = `${date}_D${pad3(dnum)}_일기`;
+    lines = [`# D${pad3(dnum)} · ${date} · 자유 일기${late}`, "", body, "", tail, ""];
+  } else {
+    base = `${date}_쉼`;
+    lines = [`# 오늘은 쉼 · ${date}${late}`, "", `**쉰 이유:** ${body}`, "", q ? `(그날 숙제 ${q.id} 「${firstLine(q.q)}」는 다음에 다시 나와요.)` : "", "", tail, ""];
+  }
+  const e = { date, kind, qid: q ? q.id : null, dnum: dnum || undefined, text: String(text), base, content: lines.join(CR), created: t, catchup: !!catchup, bundle: cfg.bundle, fname: null };
+  e.id = await DB.add(e); entries.push(e);
+  markDone(e); saveState();
+  if (qa && dirOk) {
+    try { e.fname = await uniqueWrite(qa, base, e.content); await DB.putE(e); }
+    catch (er) { console.warn("write", er); dirOk = await perm(false); }
+  }
+  return e;
+}
+function markDone(e) {
+  S.done[e.date] = (S.done[e.date] || 0) + 1;
+  if (e.kind === "answer" && e.qid && e.text.trim()) bst().answered[e.qid] = e.date;
+}
+
+// ---------- 언제 띄울지 ----------
+function decide() {
+  if (!S.setup || !B) return null;
+  const t = today(), y = addDays(t, -1);
+  if (y >= S.firstDay && !S.catchupOffered.includes(y) && !isDone(y)) return { mode: "catchup", date: y };
+  if (isDone(t) || now() < dueMs(t)) return null;
+  const d = dayState();
+  if (d.nextAt && now() < d.nextAt) return null;
+  return { mode: d.snoozes >= cfg.snoozeMax ? "persist" : "normal", date: t };
+}
+function offerDone(k) { if (!S.catchupOffered.includes(k)) { S.catchupOffered.push(k); S.catchupOffered = S.catchupOffered.slice(-40); saveState(); } }
+function tick() {
+  if (!S || !B) return;
+  dayState();
+  if (O) {
+    if (O.date !== today() && O.mode !== "catchup" && !isDone(O.date)) { O.mode = "catchup"; renderOv(); }
+    return;
+  }
+  if (!$("welSheet").hidden) return;
+  const r = decide();
+  if (r) openOv(r.mode, r.date, true);
+  render();
+}
+
+// ---------- 알림·말하기 ----------
+async function notify(title, body) {
+  if (!cfg.notify || !("Notification" in window) || Notification.permission !== "granted") return;
+  const opt = { body, tag: "homework", renotify: true, icon: "icon-192.png", badge: "icon-192.png" };
+  try {
+    const reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration();
+    if (reg && reg.showNotification) { await reg.showNotification(title, opt); return; }
+  } catch (e) { /* 아래로 */ }
+  try { const n = new Notification(title, opt); n.onclick = () => { window.focus(); n.close(); }; } catch (e) { console.warn("notify", e); }
+}
+function speak(text) {
+  if (!cfg.speak || !window.speechSynthesis) return;
+  try {
+    const u = new SpeechSynthesisUtterance(text); u.lang = "ko-KR"; u.rate = 1; u.volume = 0.8;
+    const v = speechSynthesis.getVoices().find(x => /^ko/i.test(x.lang)); if (v) u.voice = v;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  } catch (e) { console.warn("speak", e); }
+}
+async function askNotify() {
+  if (!("Notification" in window)) { toast("이 브라우저는 알림을 못 보내요 — 도움말의 알람 방법을 써 주세요"); return "unsupported"; }
+  let p = Notification.permission;
+  if (p === "default") { try { p = await Notification.requestPermission(); } catch (e) { p = "denied"; } }
+  if (p === "granted") { cfg.notify = true; saveCfg(); }
+  renderNState(); return p;
+}
+function nStateText() {
+  if (!("Notification" in window)) return "이 브라우저는 알림 안 됨";
+  return { granted: "허용됨 · 탭이 열려 있을 때 알려요", denied: "막혀 있음 · 브라우저 설정에서 허용해 주세요", default: "아직 안 물어봄" }[Notification.permission] || "";
+}
+function renderNState() { $("nState").textContent = nStateText(); $("wNState").textContent = nStateText(); }
+
+// ---------- 숙제 창 ----------
+let busy = false, draftT = 0;
+function openOv(mode, date, auto) {
+  const d = dayState();
+  if (O && O.date === date) { O.mode = mode; renderOv(); return; }
+  O = { mode, date, diary: false, qid: null };
+  O.qid = questionFor(date);
+  const dr = S.draft && S.draft.date === date ? S.draft : null;
+  if (dr) { O.diary = !!dr.diary; if (dr.qid && !O.diary) O.qid = questionFor(date); }
+  $("oText").value = dr ? dr.text : "";
+  $("oMsg").textContent = ""; $("oRestBox").hidden = true; $("oRestText").value = "";
+  $("oBody").hidden = false; $("oDone").hidden = true; busy = false; setBtns(true);
+  $("ov").hidden = false; document.body.classList.add("lock");
+  if (auto && (mode === "normal" || mode === "persist")) { d.shows++; saveState(); }
+  renderOv();
+  if (auto && (mode === "normal" || mode === "persist")) {
+    const q = qById[O.qid];
+    const title = mode === "persist" ? "숙제는 한 줄이면 끝!" : d.shows > 1 ? "숙제 검사 시간이에요 ✏️" : "오늘의 숙제가 있어요 ✏️";
+    if (document.hidden || !document.hasFocus()) notify(title, firstLine(q.q));
+    if (!d.spoken) { d.spoken = true; saveState(); speak("오늘의 숙제입니다. " + q.q); }
+  } else if (auto && mode === "catchup") {
+    if (document.hidden || !document.hasFocus()) notify("어제 숙제가 남아 있어요 📒", firstLine(qById[O.qid].q));
+  }
+  setTimeout(() => { try { $("oText").focus({ preventScroll: true }); } catch (e) {} }, 60);
+}
+function closeOv() {
+  if (!O) return;
+  saveDraft();
+  O = null; $("ov").hidden = true; document.body.classList.remove("lock");
+  try { speechSynthesis && speechSynthesis.cancel(); } catch (e) {}
+  render();
+}
+function saveDraft() {
+  if (!O) return;
+  const text = $("oText").value;
+  S.draft = text.trim() ? { date: O.date, diary: O.diary, qid: O.qid, text } : null; saveState();
+}
+function setBtns(on) { for (const id of ["oSave", "oSnooze", "oDiary", "oOther", "oRestSave", "oX"]) $(id).disabled = !on; }
+function renderOv() {
+  if (!O) return;
+  const d = dayState(), left = Math.max(0, cfg.snoozeMax - d.snoozes);
+  $("oDate").textContent = fmtDate(O.date) + (O.mode === "catchup" ? " · 어제 숙제" : "");
+  const cn = O.mode === "catchup" && !isDone(O.date) ? streakFrom(addDays(O.date, -1)) : -1;
+  $("oStreak").textContent = cn > 0 ? `🔥 ${cn}일째 · 이어 가기` : streakText();
+  $("oKick").textContent = O.mode === "catchup" ? "어제 숙제가 남아 있어요 📒"
+    : O.mode === "persist" ? "숙제는 한 줄이면 끝!"
+    : O.mode === "normal" ? (d.shows > 1 ? "숙제 검사 시간이에요 ✏️" : "오늘의 숙제가 있어요 ✏️") : "오늘의 숙제 ✏️";
+  if (O.diary) {
+    $("oPill").textContent = "자유 일기"; $("oQ").textContent = "오늘 있었던 일, 떠오른 생각 — 무엇이든 한 줄이면 돼요.";
+    $("oDiary").textContent = "질문으로 돌아가기"; $("oOther").hidden = true;
+  } else {
+    const q = qById[O.qid];
+    $("oPill").textContent = `${chLabel(q.ch)} · ${q.id}`; $("oQ").textContent = q.q;
+    $("oDiary").textContent = "자유 일기로 쓰기"; $("oOther").hidden = false;
+  }
+  const sb = $("oSnooze");
+  sb.hidden = O.mode === "persist";
+  sb.textContent = O.mode === "normal" ? `${cfg.snoozeMin}분 뒤에 (${left}번 남음)` : O.mode === "catchup" ? "다음에" : "닫기";
+  $("oRest").hidden = O.mode !== "persist";
+  const m = $("oMsg");
+  if (!m.dataset.err) {
+    m.className = "msg info";
+    m.textContent = O.mode === "persist" ? "미루기를 다 썼어요. 한 줄만 남기면 이 창이 사라져요."
+      : O.mode === "catchup" ? "어제 못 한 숙제예요. 이번 한 번만 물어봐요." : "";
+  }
+}
+function flash(text) {
+  const m = $("oMsg"); m.className = "msg"; m.textContent = text; m.dataset.err = "1";
+  m.classList.remove("shake"); void m.offsetWidth; m.classList.add("shake");
+  setTimeout(() => { delete m.dataset.err; }, 2500);
+}
+async function finish(e) {
+  S.draft = null; saveState();
+  $("oBody").hidden = true; $("oDone").hidden = false;
+  $("oDoneBig").textContent = e.kind === "rest" ? `오늘은 쉼 ✓  ${streakText()}` : `숙제 끝! ${streakText()}`;
+  $("oDoneSmall").textContent = e.fname ? `📁 _질문과답\\${e.fname}` : (FSA && dir ? "폴더 권한이 없어 이 기기에 먼저 저장했어요" : "이 기기에 저장했어요");
+  setTimeout(() => { busy = false; closeOv(); }, 1700);
+}
+async function onSave() {
+  if (busy || !O) return;
+  const text = $("oText").value.trim();
+  if (!text) { flash("한 줄만 써 주세요 ✍️"); $("oText").focus(); return; }
+  busy = true; setBtns(false);
+  try {
+    const e = await saveEntry({ date: O.date, kind: O.diary ? "diary" : "answer", text, qid: O.diary ? null : O.qid, catchup: O.mode === "catchup" });
+    if (O.mode === "catchup") offerDone(O.date);
+    $("oText").value = ""; await finish(e);
+  } catch (er) { busy = false; setBtns(true); flash("저장하지 못했어요: " + er.message); }
+}
+async function onRest() {
+  if (busy || !O) return;
+  const r = $("oRestText").value.trim();
+  if (r.length < 2) { flash("쉬는 이유를 짧게라도 적어 주세요"); $("oRestText").focus(); return; }
+  busy = true; setBtns(false);
+  try { const e = await saveEntry({ date: O.date, kind: "rest", text: r, qid: O.qid, catchup: O.mode === "catchup" }); await finish(e); }
+  catch (er) { busy = false; setBtns(true); flash("저장하지 못했어요: " + er.message); }
+}
+function onSnooze() {
+  if (busy || !O) return;
+  const d = dayState();
+  if (O.mode === "normal") {
+    if (d.snoozes >= cfg.snoozeMax) { O.mode = "persist"; renderOv(); return; }
+    d.snoozes++; d.nextAt = now() + cfg.snoozeMin * 60000; saveState();
+    closeOv(); toast(`숙제 검사 ${cfg.snoozeMin}분 전입니다 ⏰`);
+  } else if (O.mode === "catchup") { offerDone(O.date); closeOv(); }
+  else closeOv();
+}
+function onClose() {
+  if (busy || !O) return;
+  if (O.mode === "persist") { const d = dayState(); d.nextAt = now() + 60000; saveState(); closeOv(); toast("1분 뒤에 다시 올게요 — 숙제는 한 줄이면 끝!"); }
+  else onSnooze();
+}
+
+// ---------- 내보내기·가져오기 ----------
+let zipP = null;
+function loadZip() {
+  if (window.JSZip) return Promise.resolve(window.JSZip);
+  return zipP || (zipP = new Promise((res, rej) => {
+    const s = document.createElement("script"); s.src = ZIP_URL; s.integrity = ZIP_SRI; s.crossOrigin = "anonymous"; s.referrerPolicy = "no-referrer";
+    s.onload = () => res(window.JSZip); s.onerror = () => { zipP = null; s.remove(); rej(new Error("압축 도구를 못 불러왔어요 (인터넷 연결 확인)")); };
+    document.head.append(s);
+  }));
+}
+async function exportAll() {
+  const list = entries.filter(e => e.bundle === cfg.bundle).sort((a, b) => a.created - b.created);
+  if (!list.length) { toast("아직 내보낼 숙제가 없어요"); return null; }
+  const Z = await loadZip(), z = new Z(), used = new Set();
+  for (const e of list) {
+    let n = e.fname || e.base + ".md", k = 2;
+    while (used.has(n)) n = `${e.base}_${k++}.md`;
+    used.add(n); z.file(`${B.sub || "_질문과답"}/${n}`, e.content);
+  }
+  z.file("homework.json", JSON.stringify({ app: "homework", v: 1, bundle: cfg.bundle, name: B.name, exported: stamp(now()), count: list.length }, null, 1));
+  const blob = await z.generateAsync({ type: "blob", compression: "DEFLATE" });
+  const fname = `homework_${today().replace(/-/g, "")}.zip`;
+  const file = new File([blob], fname, { type: "application/zip" });
+  const t = now(); for (const e of list) { e.exported = t; DB.putE(e); }
+  if (!FSA && navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: "숙제 내보내기" }); toast(`숙제 ${list.length}개를 보냈어요`); return fname; }
+    catch (e) { if (e.name === "AbortError") return null; }
+  }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = fname; document.body.append(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 5000);
+  toast(`${fname} 저장 · 숙제 ${list.length}개`); return fname;
+}
+async function importFiles(files) {
+  const items = [];
+  for (const f of files) {
+    if (/\.zip$/i.test(f.name)) {
+      const Z = await loadZip(), z = await Z.loadAsync(f);
+      for (const name of Object.keys(z.files)) {
+        const zf = z.files[name];
+        if (!zf.dir && /\.md$/i.test(name)) items.push({ name: name.split("/").pop(), content: await zf.async("string") });
+      }
+    } else if (/\.md$/i.test(f.name)) items.push({ name: f.name, content: await f.text() });
+  }
+  if (FSA && dir && !dirOk) await reconnect();
+  let added = 0, same = 0, bad = 0;
+  for (const it of items) {
+    const info = parseName(it.name);
+    if (!info) { bad++; continue; }
+    if (entries.some(e => e.content === it.content)) { same++; continue; }
+    const base = it.name.replace(/(?:_\d+)?\.md$/, "");
+    const e = { date: info.date, kind: info.kind, qid: info.qid || null, dnum: info.dnum, text: bodyText(it.content, info.kind), base, content: it.content, created: now(), imported: true, bundle: cfg.bundle, fname: null };
+    if (qa && dirOk) {
+      let dupName = null;
+      if (folder.names.has(it.name)) { try { const c = await (await (await qa.getFileHandle(it.name)).getFile()).text(); if (c === it.content) dupName = it.name; } catch (er) {} }
+      e.fname = dupName || await uniqueWrite(qa, base, it.content);
+      if (dupName) same++; else added++;
+    } else added++;
+    e.id = await DB.add(e); entries.push(e); markDone(e);
+  }
+  saveState(); if (qa && dirOk) await scanFolder(); render();
+  toast(`가져옴 ${added}개` + (same ? ` · 이미 있음 ${same}개` : "") + (bad ? ` · 모르는 파일 ${bad}개` : ""));
+  return { added, same, bad };
+}
+
+// ---------- 화면 ----------
+let toastT = 0;
+function toast(t) { const el = $("toast"); el.textContent = t; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, 3200); }
+function todayStatus() {
+  const t = today(), d = dayState();
+  if (isDone(t)) return ["오늘 숙제 끝 ✓", true];
+  if (now() < dueMs(t)) return [`오늘 숙제 검사 ${cfg.time}`, false];
+  if (d.nextAt && now() < d.nextAt) return [`⏰ 숙제 검사 ${hm(d.nextAt)} (미룸 ${d.snoozes}/${cfg.snoozeMax})`, false];
+  return ["숙제가 기다려요 ✏️", false];
+}
+function kindLabel(e) {
+  if (e.kind === "answer") { const q = qById[e.qid]; return `${e.qid} ${q ? q.topic : ""}`; }
+  return e.kind === "diary" ? `자유 일기 D${pad3(e.dnum || 0)}` : "오늘은 쉼";
+}
+function render() {
+  if (!S || !B) return;
+  const t = today(), b = bst();
+  $("tDate").textContent = fmtDate(t); $("tStreak").textContent = streakText(); $("sBig").textContent = streakText();
+  const id = b.assigned[t] && qById[b.assigned[t]] ? b.assigned[t] : null;
+  const preview = id ? qById[id] : null;
+  $("tPill").textContent = preview ? `${chLabel(preview.ch)} · ${preview.id}` : B.name;
+  $("tQ").textContent = preview ? preview.q : "오늘 질문은 숙제 시간에 열려요. 먼저 해도 돼요!";
+  const [st, ok] = todayStatus(); $("tStatus").textContent = st; $("tStatus").className = "status" + (ok ? " done" : "");
+  $("bNow").textContent = isDone(t) ? "하나 더 쓰기 ✏️" : "지금 숙제하기 ✏️";
+  // 연속 기록 점
+  const ds = doneDates(), rest = new Set(entries.filter(e => e.kind === "rest").map(e => e.date));
+  let h = "";
+  for (let i = 13; i >= 0; i--) {
+    const k = addDays(t, -i), on = ds.has(k), r = on && rest.has(k) && !entries.some(e => e.date === k && e.kind !== "rest");
+    h += `<span class="dot${on ? (r ? " rest" : " on") : ""}${i === 0 ? " today" : ""}" title="${k}${on ? (r ? " 쉼" : " 숙제 끝") : ""}">${parseKey(k).getDate()}</span>`;
+  }
+  $("dots").innerHTML = h;
+  const nAns = answeredSet().size;
+  $("progress").textContent = `${B.name}: ${B.questions.length}문제 중 ${nAns}개 답함 · 지금까지 ${entries.length}번 기록`;
+  // 지난 숙제
+  const list = entries.slice().sort((a, b2) => b2.created - a.created).slice(0, 20);
+  $("list").innerHTML = list.length ? list.map(e => `<button class="ent" type="button" data-id="${e.id}"><b>${esc(e.date)} · ${esc(kindLabel(e))}</b><span class="tx">${esc(firstLine(e.text))}</span><span class="meta">${e.fname ? "📁 폴더에 저장됨" : "📱 이 기기에만"}${e.catchup ? " · 다음 날 씀" : ""}${e.imported ? " · 가져옴" : ""}</span></button>`).join("")
+    : `<p class="muted" style="margin:0">아직 없어요. 첫 숙제를 해 볼까요?</p>`;
+  // 폴더 / 기기
+  const pending = entries.filter(e => !e.fname && e.bundle === cfg.bundle).length;
+  $("cFolder").hidden = !FSA; $("setFolder").hidden = !FSA;
+  if (FSA) {
+    const fs = !dir ? `아직 안 골랐어요. "${B.folder}" 폴더를 고르면 답이 ${B.sub} 폴더에 새 파일로 바로 들어가요.`
+      : dirOk ? `✓ ${dir.name}${qa && qa !== dir ? " › " + qa.name : ""} 에 저장 중` : `${dir.name} — 다시 허락이 필요해요`;
+    $("fState").textContent = fs; $("sfState").textContent = fs;
+    $("bFolder").textContent = !dir ? "책 폴더 고르기" : dirOk ? "폴더 열어 확인" : "폴더 다시 연결";
+    $("bFolder").dataset.act = !dir ? "pick" : dirOk ? "rescan" : "reconnect";
+    $("fPending").hidden = !pending;
+    $("fPending").textContent = `폴더에 아직 안 들어간 숙제 ${pending}개 — 폴더를 연결하면 바로 저장돼요.`;
+  }
+  $("cDevice").hidden = FSA && !!dir && !pending;
+  $("dState").textContent = `${entries.filter(e => e.bundle === cfg.bundle).length}개` + (pending && !FSA ? " · 가끔 [내보내기]로 PC에 옮겨 주세요" : "");
+  document.querySelectorAll(".tm").forEach(x => { x.textContent = cfg.time; });
+}
+function applyTheme() { if (cfg.theme === "auto") document.documentElement.removeAttribute("data-theme"); else document.documentElement.dataset.theme = cfg.theme; }
+function openSheet(id) { $(id).hidden = false; document.body.classList.add("lock"); }
+function closeSheet(id) { $(id).hidden = true; if ($("ov").hidden && [...document.querySelectorAll(".sheet")].every(s => s.hidden)) document.body.classList.remove("lock"); }
+function openSettings() {
+  $("cTime").value = cfg.time; $("cSnMin").value = String(cfg.snoozeMin); $("cSnMax").value = String(cfg.snoozeMax);
+  $("cBundle").innerHTML = BUNDLES.map(x => `<option value="${x.id}">${esc(x.name)}</option>`).join(""); $("cBundle").value = cfg.bundle;
+  $("cNotify").checked = cfg.notify && "Notification" in window && Notification.permission === "granted"; $("cSpeak").checked = cfg.speak; $("cTheme").value = cfg.theme;
+  renderNState(); render(); openSheet("setSheet");
+}
+function writeNow() {
+  const t = today(), d = dayState();
+  const mode = !isDone(t) && now() >= dueMs(t) ? (d.snoozes >= cfg.snoozeMax ? "persist" : "normal") : "manual";
+  O = null; openOv(mode, t, false);
+}
+function showEntry(id) {
+  const e = entries.find(x => String(x.id) === String(id)); if (!e) return;
+  $("viewH").textContent = `${e.date} · ${kindLabel(e)}`; $("viewBody").textContent = e.content.replace(/\r\n/g, "\n").replace(/<!--[\s\S]*?-->/g, "").trim();
+  $("viewMeta").textContent = (e.fname ? `📁 ${B.sub}\\${e.fname}` : "📱 이 기기에만 저장됨") + ` · ${stamp(e.created)}`;
+  openSheet("viewSheet");
+}
+
+// ---------- 이벤트 ----------
+function bind() {
+  $("bNow").onclick = writeNow;
+  $("bSettings").onclick = openSettings;
+  $("oSave").onclick = onSave; $("oSnooze").onclick = onSnooze; $("oX").onclick = onClose; $("oRestSave").onclick = onRest;
+  $("oOther").onclick = () => { if (!O || busy) return; O.qid = otherQuestion(O.date); $("oMsg").textContent = ""; renderOv(); $("oText").focus(); };
+  $("oDiary").onclick = () => { if (!O || busy) return; O.diary = !O.diary; renderOv(); $("oText").focus(); };
+  $("oRestOpen").onclick = () => { $("oRestBox").hidden = !$("oRestBox").hidden; if (!$("oRestBox").hidden) $("oRestText").focus(); };
+  $("oText").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); onSave(); } });
+  $("oRestText").addEventListener("keydown", e => { if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); onRest(); } });
+  $("oText").addEventListener("input", () => { clearTimeout(draftT); draftT = setTimeout(saveDraft, 600); });
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Escape" || e.isComposing) return;
+    const sh = [...document.querySelectorAll(".sheet")].find(s => !s.hidden && s.id !== "welSheet");
+    if (sh) closeSheet(sh.id); else if (O) onClose();
+  });
+  document.querySelectorAll("[data-close]").forEach(b => { b.onclick = () => closeSheet(b.closest(".sheet").id); });
+  document.querySelectorAll(".sheet").forEach(s => s.addEventListener("click", e => { if (e.target === s && s.id !== "welSheet") closeSheet(s.id); }));
+  $("list").addEventListener("click", e => { const b = e.target.closest(".ent"); if (b) showEntry(b.dataset.id); });
+  // 폴더
+  $("bFolder").onclick = async () => {
+    const a = $("bFolder").dataset.act;
+    if (a === "pick") await pickFolder();
+    else if (a === "reconnect") { if (!(await reconnect())) toast("허락하지 않아서 이 기기에 먼저 저장할게요"); }
+    else { await scanFolder(); await flushPending(); render(); toast(`폴더 확인: 파일 ${folder.names.size}개`); }
+  };
+  $("sfPick").onclick = pickFolder;
+  $("sfForget").onclick = async () => { if (!confirm("책 폴더 연결을 끊을까요? (폴더 안 파일은 그대로 있어요)")) return; await DB.del("dir:" + cfg.bundle); await restoreFolder(); render(); };
+  const imp = () => $("fImport").click();
+  $("bImport").onclick = imp; $("bImport2").onclick = imp; $("sImport").onclick = imp;
+  $("fImport").onchange = async e => { const fs = [...e.target.files]; e.target.value = ""; if (fs.length) try { await importFiles(fs); } catch (er) { toast("가져오지 못했어요: " + er.message); } };
+  const exp = async () => { try { await exportAll(); } catch (er) { toast("내보내지 못했어요: " + er.message); } };
+  $("bExport").onclick = exp; $("sExport").onclick = exp;
+  // 설정
+  $("cTime").onchange = e => { if (/^\d\d:\d\d$/.test(e.target.value)) { cfg.time = e.target.value; saveCfg(); render(); } };
+  $("cSnMin").onchange = e => { cfg.snoozeMin = +e.target.value; saveCfg(); };
+  $("cSnMax").onchange = e => { cfg.snoozeMax = +e.target.value; saveCfg(); };
+  $("cBundle").onchange = async e => { cfg.bundle = e.target.value; saveCfg(); await loadBundle(); await restoreFolder(); render(); };
+  $("cSpeak").onchange = e => { cfg.speak = e.target.checked; saveCfg(); if (cfg.speak) speak("숙제 시간에 질문을 읽어 드릴게요."); };
+  $("cTheme").onchange = e => { cfg.theme = e.target.value; saveCfg(); applyTheme(); };
+  $("cNotify").onchange = async e => {
+    if (e.target.checked) { const p = await askNotify(); e.target.checked = p === "granted"; if (p === "granted") notify("숙제 알림이 켜졌어요 ✏️", `매일 ${cfg.time}, 이 탭이 열려 있으면 알려 드려요.`); }
+    else { cfg.notify = false; saveCfg(); }
+  };
+  // 처음
+  $("wNotify").onclick = askNotify;
+  $("wFolder").onclick = async () => { if (await pickFolder()) $("wFState").textContent = "✓ " + dir.name; };
+  $("wGo").onclick = () => {
+    const tv = $("wTime").value; if (/^\d\d:\d\d$/.test(tv)) cfg.time = tv;
+    S.setup = true; S.firstDay = today(); saveState(); saveCfg(); closeSheet("welSheet");
+    try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
+    toast(`좋아요! 매일 ${cfg.time}에 숙제가 나와요`); render(); tick();
+  };
+  // 깨어남·돌아옴
+  const wake = () => { if (dirOk && now() - scanAt > 30000) scanFolder().then(() => { render(); tick(); }); else tick(); };
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) wake(); });
+  window.addEventListener("focus", wake); window.addEventListener("pageshow", wake);
+  window.addEventListener("pagehide", saveDraft);
+}
+
+async function loadBundle() {
+  const info = BUNDLES.find(x => x.id === cfg.bundle) || BUNDLES[0];
+  cfg.bundle = info.id;
+  try { const r = await fetch(info.file, { cache: "no-cache" }); if (!r.ok) throw new Error(r.status); B = await r.json(); DB.put("bundle:" + info.id, B).catch(() => {}); }
+  catch (e) { B = await DB.get("bundle:" + info.id).catch(() => null); if (!B) throw new Error("질문 묶음을 못 불러왔어요"); }
+  qById = Object.fromEntries(B.questions.map(q => [q.id, q]));
+}
+async function init() {
+  bind();
+  cfg = { ...DEF, ...((await DB.get("cfg").catch(() => null)) || {}) };
+  S = { ...newState(), ...((await DB.get("state").catch(() => null)) || {}) };
+  applyTheme();
+  entries = (await DB.all().catch(() => [])) || [];
+  await loadBundle();
+  await restoreFolder();
+  $("ver").textContent = `숙제 v${VERSION} · ${B.name}`;
+  render();
+  if (!S.setup) {
+    $("welBundle").textContent = `질문 묶음: ${B.name} (${B.questions.length}문제) — ${B.about || ""}`;
+    $("wFolderRow").hidden = !FSA; renderNState(); openSheet("welSheet");
+  }
+  tick();
+  setInterval(tick, window.__hwTickMs || 15000);
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(e => console.warn("sw", e));
+}
+window.HW = { get S() { return S; }, get cfg() { return cfg; }, get O() { return O; }, get entries() { return entries; }, get folder() { return folder; }, get dirOk() { return dirOk; },
+  tick, decide, render, streak, exportAll, importFiles, version: VERSION };
+window.HW.ready = init().catch(e => { console.error(e); toast("시작하지 못했어요: " + e.message); });
+})();
+</script>
+</body>
+</html>
